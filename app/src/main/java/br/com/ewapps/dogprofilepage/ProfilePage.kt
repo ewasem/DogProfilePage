@@ -20,57 +20,86 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 
 @Composable
-fun ProfilePage(){
-    Card(elevation = 6.dp, shape = RoundedCornerShape(30.dp), modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 100.dp, bottom = 100.dp, start = 16.dp, end = 16.dp)
-        ) {
-    //COnteúdo do Card, incluindo todos os elementos
-        Column(
-        Modifier.verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center) {
-Image(painter = painterResource(id = R.drawable.husky),
-    contentDescription = "husky",
-modifier = Modifier
-    .size(200.dp)
-    .clip(CircleShape)
-    .border(
-        width = 2.dp, color = Color.Red, shape = CircleShape
-    ),
-    contentScale = ContentScale.Crop
-)
+fun ProfilePage() {
+    Card(
+        elevation = 6.dp, shape = RoundedCornerShape(30.dp), modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 100.dp, bottom = 100.dp, start = 16.dp, end = 16.dp)
+    ) {
+        //Conteúdo do Card, incluindo todos os elementos
+        ConstraintLayout() {
+            val (image, nameText, countryText, rowStats, buttonFollow, buttonMessage) = createRefs()
+            val guideline = createGuidelineFromTop(0.15f)
+            Image(
+                painter = painterResource(id = R.drawable.husky),
+                contentDescription = "husky",
+                modifier = Modifier
+                    .size(200.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 2.dp, color = Color.Red, shape = CircleShape
+                    )
+                    .constrainAs(image) {
+                        top.linkTo(guideline)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                contentScale = ContentScale.Crop
+            )
 
-        Text("Husky Siberiano")
-        Text(text = "Brasil")
+            Text("Husky Siberiano",
+                modifier = Modifier.constrainAs(nameText) {
+                    top.linkTo(image.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                })
+            Text(text = "Brasil",
+                modifier = Modifier.constrainAs(countryText) {
+                    top.linkTo(nameText.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                })
 
-        Row(horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)) {
-            ProfileStats(count = "150", title = "Seguidores")
-            ProfileStats(count = "100", title = "Seguindo")
-            ProfileStats(count = "33", title = "Postagens")
-        }
+            Row(horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .constrainAs(rowStats) {
+                        top.linkTo(countryText.bottom)
+                    }) {
+                ProfileStats(count = "150", title = "Seguidores")
+                ProfileStats(count = "100", title = "Seguindo")
+                ProfileStats(count = "33", title = "Postagens")
+            }
 
-        Row(horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)) {
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { /*TODO*/ },
+                modifier = Modifier.constrainAs(buttonFollow) {
+                    top.linkTo(rowStats.bottom, margin = 16.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(buttonMessage.start)
+                    width = Dimension.wrapContent
+                }) {
                 Text(text = "Seguir Usuário")
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { /*TODO*/ },
+                modifier = Modifier.constrainAs(buttonMessage) {
+                    top.linkTo(rowStats.bottom, margin = 16.dp)
+                    start.linkTo(buttonFollow.end)
+                    end.linkTo(parent.end)
+                    width = Dimension.wrapContent
+                }) {
                 Text(text = "Mensagem Direta")
             }
         }
     }
-    }
 }
 
 @Composable
+//Funçao que formata o linha de seguidores, seguindo e as postagens
 fun ProfileStats(count: String, title: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = count, fontWeight = FontWeight.Bold)
